@@ -1,0 +1,105 @@
+name: 'Terraform'
+
+on:
+
+  push:
+
+    branches: [ "main" ]
+
+  pull_request:
+
+ 
+permissions:
+
+  contents: read
+
+ 
+jobs:
+
+  terraform:
+
+    name: 'Terraform'
+
+    runs-on: ubuntu-latest
+
+ 
+
+    steps:
+
+    # Checkout the repository to the GitHub Actions runner
+
+    - name: Checkout
+
+      uses: actions/checkout@v3
+
+ 
+
+    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+
+    - name: Setup Terraform
+
+      uses: hashicorp/setup-terraform@v1
+
+    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+
+    - name: Terraform Init
+
+      run: terraform init
+
+      env:
+
+        GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+
+ 
+
+    - name: terraform_plan
+
+      id: terraform_plan
+
+      run: |
+
+          terraform plan -input=false
+
+      env:
+
+        GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+
+ 
+
+    - name: terraform_plan_output
+
+      id: terraform_plan_output
+
+      run: |
+
+        {
+
+          echo 'tfplan_output<<EOF'
+
+          terraform plan -input=false 2>&1
+
+          echo EOF
+
+        } >> "$GITHUB_OUTPUT"
+
+      env:
+
+        GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+
+ 
+
+    - name: terraform_plan_output_final_review
+
+      run: |
+
+          echo -e "\033[44m REVIEW THE BELOW TERRAFORM FINAL OUTPUT THOROUGHLY BEFORE RAISING PULL REQUEST"
+
+          echo -e "\033[31m -----"
+
+          echo "${{ steps.terraform_plan_output.outputs.tfplan_output }}" | grep 'Plan:'
+
+          echo -e "\033[31m -----"
+
+ 
+ 
+ 

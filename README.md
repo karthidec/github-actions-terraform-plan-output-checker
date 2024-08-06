@@ -2,4 +2,12 @@
 
 This repository code explains the below script:
 
-How to extract terraform plan output and print only `Plan:` single line output.  It will help reviewer to see the outputs quicker. 
+How to extract terraform plan output and print only terraform plan output `Plan:` single line output.
+
+Pre-requisite:
+- Configure secrets in github repo setting with the name `GOOGLE_APPLICATION_CREDENTIALS`
+
+Sample output:
+![alt text](tfplan_output.png)
+
+
